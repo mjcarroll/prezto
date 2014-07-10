@@ -36,6 +36,10 @@ Developer%                               1& ~/bin/Developer [alex@cmu] 2.001s
 EOH
 }
 
+function prompt_awreece_pre {
+  vcs_info
+}
+
 function prompt_awreece_setup {
   prompt_opts=(cr percent subst)
 
@@ -47,8 +51,25 @@ function prompt_awreece_setup {
     ssh_host='%F{cyan}[%n@%m]%f '
   fi
 
+  # Load required functions.
+  autoload -Uz add-zsh-hook
+  autoload -Uz vcs_info
+
+  # Add hook for calling vcs_info before each command.
+  add-zsh-hook precmd prompt_awreece_pre
+
+  # Set vcs_info parameters.
+  zstyle ':vcs_info:*' enable bzr git hg svn
+  zstyle ':vcs_info:*' check-for-changes true
+  zstyle ':vcs_info:*' stagedstr '%F{green}●%f'
+  zstyle ':vcs_info:*' unstagedstr '%F{yellow}●%f'
+  zstyle ':vcs_info:*' formats '%F{cyan}(%b%f%u%c)'
+  zstyle ':vcs_info:*' actionformats "%F{cyan}(%b%f%u%c)%F{green}(%s%f)"
+  zstyle ':vcs_info:(sv[nk]|bzr):*' branchformat '%b|%F{cyan}%r%f'
+  zstyle ':vcs_info:git*+set-message:*' hooks git-status
+
   # Define prompts.
-  PROMPT='%F{blue}%1~%f%F{magenta}%#%f '
+  PROMPT='%F{blue}%1~${vcs_info_msg_0_}%f%F{magenta}%#%f '
   RPROMPT="${background_job_status}${full_directory}${ssh_host}"
 }
 
